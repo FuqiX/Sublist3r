@@ -162,17 +162,18 @@ class enumratorBase(object):
     def print_(self, text):
         if not self.silent:
             print(text)
-        return
+
 
     def print_banner(self):
         """ subclass can override this if they want a fancy banner :)"""
         self.print_(G + "[-] Searching now in %s.." % (self.engine_name) + W)
-        return
+
 
     def send_req(self, query, page_no=1):
 
         url = self.base_url.format(query=query, page_no=page_no)
         try:
+            self.session.cookies.clear()
             resp = self.session.get(url, headers=self.headers, timeout=self.timeout)
         except Exception:
             resp = None
@@ -196,7 +197,7 @@ class enumratorBase(object):
     # override
     def extract_domains(self, resp):
         """ chlid class should override this function """
-        return
+
 
     # override
     def check_response_errors(self, resp):
@@ -207,11 +208,11 @@ class enumratorBase(object):
 
     def should_sleep(self):
         """Some enumrators require sleeping to avoid bot detections like Google enumerator"""
-        return
+
 
     def generate_query(self):
         """ chlid class should override this function """
-        return
+
 
     def get_page(self, num):
         """ chlid class that user different pagnation counter should override this function """
@@ -262,7 +263,7 @@ class enumratorBaseThreaded(multiprocessing.Process, enumratorBase):
         enumratorBase.__init__(self, base_url, engine_name, domain, subdomains, silent=silent, verbose=verbose)
         multiprocessing.Process.__init__(self)
         self.q = q
-        return
+
 
     def run(self):
         domain_list = self.enumerate()
@@ -279,7 +280,7 @@ class GoogleEnum(enumratorBaseThreaded):
         self.MAX_PAGES = 200
         super(GoogleEnum, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.q = q
-        return
+
 
     def extract_domains(self, resp):
         links_list = list()
@@ -300,7 +301,7 @@ class GoogleEnum(enumratorBaseThreaded):
         return links_list
 
     def check_response_errors(self, resp):
-        if (type(resp) is str or type(resp) is unicode) and 'Our systems have detected unusual traffic' in resp:
+        if type(resp) is str and 'Our systems have detected unusual traffic' in resp:
             self.print_(R + "[!] Error: Google probably now is blocking our requests" + W)
             self.print_(R + "[~] Finished now the Google Enumeration ..." + W)
             return False
@@ -308,7 +309,7 @@ class GoogleEnum(enumratorBaseThreaded):
 
     def should_sleep(self):
         time.sleep(5)
-        return
+
 
     def generate_query(self):
         if self.subdomains:
@@ -329,7 +330,7 @@ class YahooEnum(enumratorBaseThreaded):
         self.MAX_PAGES = 0
         super(YahooEnum, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.q = q
-        return
+
 
     def extract_domains(self, resp):
         link_regx2 = re.compile('<span class=" fz-.*? fw-m fc-12th wr-bw.*?">(.*?)</span>')
@@ -380,7 +381,7 @@ class AskEnum(enumratorBaseThreaded):
         self.MAX_PAGES = 0
         enumratorBaseThreaded.__init__(self, base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.q = q
-        return
+
 
     def extract_domains(self, resp):
         links_list = list()
@@ -424,7 +425,7 @@ class BingEnum(enumratorBaseThreaded):
         enumratorBaseThreaded.__init__(self, base_url, self.engine_name, domain, subdomains, q=q, silent=silent)
         self.q = q
         self.verbose = verbose
-        return
+
 
     def extract_domains(self, resp):
         links_list = list()
@@ -469,7 +470,7 @@ class BaiduEnum(enumratorBaseThreaded):
         enumratorBaseThreaded.__init__(self, base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.querydomain = self.domain
         self.q = q
-        return
+
 
     def extract_domains(self, resp):
         links = list()
@@ -508,7 +509,7 @@ class BaiduEnum(enumratorBaseThreaded):
 
     def should_sleep(self):
         time.sleep(random.randint(2, 5))
-        return
+
 
     def generate_query(self):
         if self.subdomains and self.querydomain != self.domain:
@@ -526,7 +527,7 @@ class NetcraftEnum(enumratorBaseThreaded):
         self.engine_name = "Netcraft"
         super(NetcraftEnum, self).__init__(self.base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.q = q
-        return
+
 
     def req(self, url, cookies=None):
         cookies = cookies or {}
@@ -539,7 +540,7 @@ class NetcraftEnum(enumratorBaseThreaded):
 
     def should_sleep(self):
         time.sleep(random.randint(1, 2))
-        return
+
 
     def get_next(self, resp):
         link_regx = re.compile('<a.*?href="(.*?)">Next Page')
@@ -603,7 +604,7 @@ class DNSdumpster(enumratorBaseThreaded):
         self.q = q
         self.lock = None
         super(DNSdumpster, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
-        return
+
 
     def check_host(self, host):
         is_valid = False
@@ -681,7 +682,7 @@ class Virustotal(enumratorBaseThreaded):
         self.q = q
         super(Virustotal, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
         self.url = self.base_url.format(domain=self.domain)
-        return
+
 
     # the main send_req need to be rewritten
     def send_req(self, url):
@@ -737,7 +738,7 @@ class ThreatCrowd(enumratorBaseThreaded):
         self.engine_name = "ThreatCrowd"
         self.q = q
         super(ThreatCrowd, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
-        return
+
 
     def req(self, url):
         try:
@@ -775,7 +776,7 @@ class CrtSearch(enumratorBaseThreaded):
         self.engine_name = "SSL Certificates"
         self.q = q
         super(CrtSearch, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
-        return
+
 
     def req(self, url):
         try:
@@ -826,7 +827,7 @@ class PassiveDNS(enumratorBaseThreaded):
         self.engine_name = "PassiveDNS"
         self.q = q
         super(PassiveDNS, self).__init__(base_url, self.engine_name, domain, subdomains, q=q, silent=silent, verbose=verbose)
-        return
+
 
     def req(self, url):
         try:
