@@ -608,7 +608,7 @@ class DNSdumpster(enumratorBaseThreaded):
     def check_host(self, host):
         is_valid = False
         Resolver = dns.resolver.Resolver()
-        Resolver.nameservers = ['8.8.8.8', '8.8.4.4']
+        Resolver.nameservers = ['1.1.1.1','8.8.8.8', '8.8.4.4']
         self.lock.acquire()
         try:
             ip = Resolver.query(host, 'A')[0].to_text()
@@ -686,7 +686,13 @@ class Virustotal(enumratorBaseThreaded):
     # the main send_req need to be rewritten
     def send_req(self, url):
         try:
-            resp = self.session.get(url, headers=self.headers, timeout=self.timeout)
+            headersVt = {
+                "X-Tool": "vt-ui-main",
+                "Accept-Ianguage": "en-US,en;q=0.9,es;q=0.8",
+                "X-VT-Anti-Abuse-Header": f"{random.randint(-10000, 0)}",
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0"
+                }
+            resp = requests.get(self.url, headers=headersVt)
         except Exception as e:
             self.print_(e)
             resp = None
