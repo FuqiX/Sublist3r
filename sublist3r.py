@@ -22,6 +22,7 @@ from subbrute import subbrute
 import dns.resolver
 import requests
 
+"""
 # Python 2.x and 3.x compatiablity
 if sys.version > '3':
     import urllib.parse as urlparse
@@ -112,7 +113,10 @@ def write_file(filename, subdomains):
     with open(str(filename), 'wt') as f:
         for subdomain in subdomains:
             f.write(subdomain + os.linesep)
+"""
 
+"""
+FX: might not needed for mine
 
 def subdomain_sorting_key(hostname):
     """Sorting key for subdomains
@@ -138,7 +142,7 @@ def subdomain_sorting_key(hostname):
     if parts[-1] == 'www':
         return parts[:-1], 1
     return parts, 0
-
+"""
 
 class enumratorBase(object):
     def __init__(self, base_url, engine_name, domain, subdomains=None, silent=False, verbose=True):
@@ -320,7 +324,7 @@ class GoogleEnum(enumratorBaseThreaded):
             query = "site:{domain} -www.{domain}".format(domain=self.domain)
         return query
 
-
+"""
 class YahooEnum(enumratorBaseThreaded):
     def __init__(self, domain, subdomains=None, q=None, silent=False, verbose=True):
         subdomains = subdomains or []
@@ -594,6 +598,7 @@ class NetcraftEnum(enumratorBaseThreaded):
             pass
         return links_list
 
+"""
 
 class DNSdumpster(enumratorBaseThreaded):
     def __init__(self, domain, subdomains=None, q=None, silent=False, verbose=True):
@@ -992,7 +997,7 @@ def main(domain, threads, savefile, ports, silent, verbose, enable_bruteforce, e
                 print(G + subdomain + W)
     return subdomains
 
-
+"""
 def interactive():
     args = parse_args()
     domain = args.domain
@@ -1008,6 +1013,7 @@ def interactive():
         no_color()
     banner()
     res = main(domain, threads, savefile, ports, silent=False, verbose=verbose, enable_bruteforce=enable_bruteforce, engines=engines)
+"""
 
 if __name__ == "__main__":
     interactive()
